@@ -1,0 +1,45 @@
+body {
+  font: 11px sans-serif;
+}
+
+.bar{
+  fill: steelblue;
+}
+
+.bar:hover{
+  fill: brown;
+}
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+.dot {
+  stroke: #000;
+}
+
+.tooltip {
+  position: absolute;
+  width: 200px;
+  height: 28px;
+  pointer-events: none;
+}
+
+
+#table{
+  width: 10%;
+  margin-left: 85%;
+  height: 600px;
+  font-size: 17px;
+  border-style: solid;
+  position: absolute;
+  overflow-y: scroll;
+}
+
+
+.itr{
+  font-size: 20px;
+}

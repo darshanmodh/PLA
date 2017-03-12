@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link href="css/style.css" rel="stylesheet"/>
+</head>
+<body>
+
+<script src="http://d3js.org/d3.v3.min.js"></script>
+
+<script>
+var margin = {top: 20, right: 20, bottom: 30, left: 40},
+    width = 960 - margin.left - margin.right,
+    height = 500 - margin.top - margin.bottom;
+
+// setup x
+var x1Value = function(d) { return d.X1;}, // data -> value
+    x1Scale = d3.scale.linear().range([0, width]), // value -> display
+    x1Map = function(d) { return x1Scale(x1Value(d));}, // data -> display
+    x1Axis = d3.svg.axis().scale(x1Scale).orient("bottom");
+
+// setup y
+var x2Value = function(d) { return d.X2;}, // data -> value
+    x2Scale = d3.scale.linear().range([height, 0]), // value -> display
+    x2Map = function(d) { return x2Scale(x2Value(d));}, // data -> display
+    x2Axis = d3.svg.axis().scale(x2Scale).orient("left");
+
+// setup fill color
+var cValue = function(d) { return d.D;},
+    color = d3.scale.category10();
+
+// add the graph canvas to the body of the webpage
+var svg = d3.select("body").append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+    .append("g")
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+// add the tooltip area to the webpage
+var tooltip = d3.select("body").append("div")
+    .attr("class", "tooltip")
+    .style("opacity", 0);
+
+// load data
+d3.csv("data/update.json", function(error, data) {
+
+  // change string (from CSV) into number format
+  data.forEach(function(d) {
+    console.log(d);
+    d.X1 = +d.X1;
+    d.X2 = +d.X2;
+  });
+
+  x1Scale.domain([0, d3.max(data, x1Value)+1]);
+  x2Scale.domain([0, d3.max(data, x2Value)+1]);
+
+  // x1-axis
+  svg.append("g")
+      .attr("class", "x1 axis")
+      .attr("transform", "translate(0," + height + ")")
+      .call(x1Axis)
+    .append("text")
+      .attr("class", "label")
+      .attr("x", width)
+      .attr("y", -6)
+      .style("text-anchor", "end")
+      .text("X1");
+
+  // x2-axis
+  svg.append("g")
+      .attr("class", "x2 axis")
+      .call(x2Axis)
+    .append("text")
+      .attr("class", "label")
+      .attr("transform", "rotate(-90)")
+      .attr("y", 6)
+      .attr("dy", ".71em")
+      .style("text-anchor", "end")
+      .text("X2");
+
+  // draw dots
+  svg.selectAll(".dot")
+      .data(data)
+    .enter().append("circle")
+      .attr("class", "dot")
+      .attr("r", 3.5)
+      .attr("cx", x1Map)
+      .attr("cy", x2Map)
+      .style("fill", function(d) { return color(cValue(d));})
+      .on("mouseover", function(d) {
+          tooltip.transition()
+               .duration(200)
+               .style("opacity", .9);
+          tooltip.html("(" + x1Value(d) + ", " + x2Value(d) + ")")
+               .style("left", (d3.event.pageX + 3) + "px")
+               .style("top", (d3.event.pageY - 10) + "px");
+      })
+      .on("mouseout", function(d) {
+          tooltip.transition()
+               .duration(500)
+               .style("opacity", 0);
+      });
+
+  //draw line
+  var lineData = [[1,1,10,10]];
+
+  var line = svg.selectAll(".line")
+  .data(lineData);
+
+  line.enter()
+  .append("line")
+  .attr("class", "line")
+  .attr("x1", function(d) { return x1Scale(d[0]); })
+  .attr("y1", function(d) { return x2Scale(d[1]); })
+  .attr("x2", function(d) { return x1Scale(d[2]); })
+  .attr("y2", function(d) { return x2Scale(d[3]); })
+  .attr("stroke", "red")
+  .attr("stroke-width", 2);
+
+  // draw legend
+  var legend = svg.selectAll(".legend")
+      .data(color.domain())
+    .enter().append("g")
+      .attr("class", "legend")
+      .attr("transform", function(d, i) { return "translate(0," + i * 20 + ")"; });
+
+  // draw legend colored rectangles
+  legend.append("rect")
+      .attr("x", width - 18)
+      .attr("width", 18)
+      .attr("height", 18)
+      .style("fill", color);
+
+  // draw legend text
+  legend.append("text")
+      .attr("x", width - 24)
+      .attr("y", 9)
+      .attr("dy", ".35em")
+      .style("text-anchor", "end")
+      .text(function(d) { return d;})
+});
+
+
+</script>
+</body>
+</html>

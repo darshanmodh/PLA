@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+
+<head>
+  <head>
+    <link href="css/style.css" rel="stylesheet"/>
+  </head>
+
+</head>
+
+<body>
+
+<script src="http://d3js.org/d3.v3.min.js"></script>
+
+<h2>Perceptron Learning Algorithm</h2>
+
+<div id="chart">
+</div>
+
+<div id="table">
+  <h3><strong>Data Set</strong></h3>
+</div>
+
+
+<script>
+// set the dimensions of the canvas
+var margin = {top: 20, right: 20, bottom: 30, left: 40},
+    width = 960 - margin.left - margin.right,
+    height = 500 - margin.top - margin.bottom;
+
+    // setup x
+    var x1Value = function(d) { return d.X1;}, // data -> value
+        x1Scale = d3.scale.linear().range([0, width]), // value -> display
+        x1Map = function(d) { return x1Scale(x1Value(d));}, // data -> display
+        x1Axis = d3.svg.axis().scale(x1Scale).orient("bottom");
+
+    // setup y
+    var x2Value = function(d) { return d.X2;}, // data -> value
+        x2Scale = d3.scale.linear().range([height, 0]), // value -> display
+        x2Map = function(d) { return x2Scale(x2Value(d));}, // data -> display
+        x2Axis = d3.svg.axis().scale(x2Scale).orient("left");
+
+    // setup fill color
+    var cValue = function(d) { return d.D;},
+        color = d3.scale.category10();
+
+
+// set the ranges
+var x = d3.scale.ordinal().rangeRoundBands([0, width], .05);
+
+var y = d3.scale.linear().range([height, 0]);
+
+// define the axis
+var xAxis = d3.svg.axis()
+    .scale(x)
+    .orient("bottom")
+
+
+var yAxis = d3.svg.axis()
+    .scale(y)
+    .orient("left")
+    .ticks(10);
+
+
+// add the SVG element
+var svg = d3.select("body").append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+  .append("g")
+    .attr("transform",
+          "translate(" + margin.left + "," + margin.top + ")");
+
+
+// load the data
+d3.json("data/update.json", function(error, data) {
+
+    data.forEach(function(d) {
+        d.X1 = +d.X1;
+        d.X2 = +d.X2;
+    });
+
+  // scale the range of the data
+  x1Scale.domain([0, d3.max(data, x1Value)]);
+  x2Scale.domain([0, d3.max(data, x2Value)]);
+
+
+
+  // x1-axis
+  svg.append("g")
+      .attr("class", "x1 axis")
+      .attr("transform", "translate(0," + height + ")")
+      .call(x1Axis)
+    .append("text")
+      .attr("class", "label")
+      .attr("x", width)
+      .attr("y", -6)
+      .style("text-anchor", "end")
+      .text("X1");
+
+  // x2-axis
+  svg.append("g")
+      .attr("class", "x2 axis")
+      .call(x2Axis)
+    .append("text")
+      .attr("class", "label")
+      .attr("transform", "rotate(-90)")
+      .attr("y", 6)
+      .attr("dy", ".71em")
+      .style("text-anchor", "end")
+      .text("X2");
+
+
+// draw dots
+svg.selectAll(".dot")
+    .data(data)
+  .enter().append("circle")
+    .attr("class", "dot")
+    .attr("r", 3.5)
+    .attr("cx", x1Map)
+    .attr("cy", x2Map)
+    .style("fill", function(d) { return color(cValue(d));})
+    .on("mouseover", function(d) {
+        tooltip.transition()
+             .duration(200)
+             .style("opacity", .9);
+        tooltip.html("(" + x1Value(d) + ", " + x2Value(d) + ")")
+             .style("left", (d3.event.pageX + 3) + "px")
+             .style("top", (d3.event.pageY - 10) + "px");
+    })
+    .on("mouseout", function(d) {
+        tooltip.transition()
+             .duration(500)
+             .style("opacity", 0);
+    });
+
+
+
+    // draw legend
+    var legend = svg.selectAll(".legend")
+        .data(color.domain())
+      .enter().append("g")
+        .attr("class", "legend")
+        .attr("transform", function(d, i) { return "translate(0," + i * 20 + ")"; });
+
+    // draw legend colored rectangles
+    legend.append("rect")
+        .attr("x", width - 18)
+        .attr("width", 18)
+        .attr("height", 18)
+        .style("fill", color);
+
+    // draw legend text
+    legend.append("text")
+        .attr("x", width - 24)
+        .attr("y", 9)
+        .attr("dy", ".35em")
+        .style("text-anchor", "end")
+        .text(function(d) { return d;});
+
+
+
+        //draw line
+      d3.json("data/line.json", function(error, data) {
+        data.forEach(function(d) {
+            d.X1 = +d.X1;
+            d.Y1 = +d.Y1;
+            d.X2 = +d.X2;
+            d.Y2 = +d.Y2;
+        });
+
+        var line = svg.selectAll(".line")
+        .data(data);
+
+
+
+        line.enter()
+        .append("line")
+        .attr("class", "line")
+        .attr("x1", function(d) { return x1Scale(d.X1); })
+        .attr("y1", function(d) { return x2Scale(d.Y1); })
+        .attr("x2", function(d) { return x1Scale(d.X2); })
+        .attr("y2", function(d) { return x2Scale(d.Y2); })
+        .attr("stroke", "blue")
+        .attr("stroke-width", 2);
+      });
+
+      d3.json("data/targetline.json", function(error, data) {
+        data.forEach(function(d) {
+            d.X1 = +d.X1;
+            d.Y1 = +d.Y1;
+            d.X2 = +d.X2;
+            d.Y2 = +d.Y2;
+        });
+
+        var line = svg.selectAll(".targetline")
+        .data(data);
+
+        line.enter()
+        .append("line")
+        .attr("class", "targetline")
+        .attr("x1", function(d) { return x1Scale(d.X1); })
+        .attr("y1", function(d) { return x2Scale(d.Y1); })
+        .attr("x2", function(d) { return x1Scale(d.X2); })
+        .attr("y2", function(d) { return x2Scale(d.Y2); })
+        .attr("stroke", "green")
+        .attr("stroke-width", 2);
+      });
+
+
+  });
+
+
+var table = d3.select('#table').append('table');
+
+d3.json("data/update.json", function(error, data) {
+
+
+  var tr = table.selectAll('tr')
+  .data(data).enter()
+  .append('tr');
+
+  tr.append('td').html(function(d){return d.X1});
+  tr.append('td').html(function(d){return d.X2});
+  tr.append('td').html(function(d){return d.D});
+
+});
+
+</script>
+
+<div id="button">
+  <a href="/update"><button>Next Iteration</button></a>
+</div>
+<br/>
+<div>
+  <label class="itr"><strong>Iteration : </strong><%= itr%></label>
+</div>
+<div>
+  <label class="itr"><strong>Current vector W : </strong>[ <%= w0%>, <%= w1%>, <%= w2%> ]</label>
+</div>
+
+</body>

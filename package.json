@@ -1,0 +1,23 @@
+{
+  "name": "perceptron",
+  "version": "1.0.0",
+  "description": "Machine Learning - PLA",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "body-parser": "1.15.0",
+    "ejs": "^2.4.1",
+    "express": "4.13.4",
+    "express-session": "1.13.0",
+    "fs": "0.0.2",
+    "jsonfile": "^2.4.0",
+    "request": "2.72.0"
+  },
+  "author": "Darshan Modh",
+  "license": "ISC",
+  "keywords": [
+    "PLA"
+  ]
+}
