@@ -25,8 +25,8 @@ function generatePoints(numberOfPoints){
   var dataPointsJSON = [];
 
   while(i < numberOfPoints){
-    var new_x = Math.floor(Math.random() * (200 - 0)) + 0;
-    var new_y= Math.floor(Math.random() * (200 - 0)) + 0;
+    var new_x = Math.floor(Math.random() * 200);
+    var new_y= Math.floor(Math.random() * 200);
     var new_D;
 
     var d = 2*(new_x) - new_y;
@@ -60,15 +60,14 @@ app.get('/', function(req, res){
   w1 = 10;
   w2 = 50;
   var obj = linePointsJSON(w0, w1, w2);
-  var jsonfile = require('jsonfile');
-  var file = './public/data/line.json';
+  var jsonfileLine = require('jsonfile');
+  var fileLine = './public/data/line.json';
   iteration = 0;
-  jsonfile.writeFileSync(file, obj);
-  res.render('update', {itr:iteration, w0 : w0, w1:w1, w2:w2});
+  jsonfileLine.writeFileSync(fileLine, obj);
+  res.render('pla', {itr:iteration, w0 : w0, w1:w1, w2:w2});
 });
 
-
-app.get('/update', function(req, res){
+app.get('/pla', function(req, res){
   var jsonfile = require('jsonfile');
   var file = './public/data/update.json';
   var dataJSON = jsonfile.readFileSync(file);
@@ -85,15 +84,15 @@ app.get('/update', function(req, res){
       w0 = w0 + (y)*1;
       w1 = w1 + (y)*x1;
       w2 = w2 + (y)*x2;
-      var obj = linePointsJSON(w0, w1, w2);
-      var jsonfile = require('jsonfile');
-      var file = './public/data/line.json';
-      jsonfile.writeFileSync(file, obj);
+      var obj2 = linePointsJSON(w0, w1, w2);
+      var jsonfileLine2 = require('jsonfile');
+      var fileLine2 = './public/data/line.json';
+      jsonfileLine2.writeFileSync(fileLine2, obj2);
       iteration = iteration + 1;
       break;
     }
   }
-  res.render('update', {itr:iteration, w0 : w0, w1:w1, w2:w2});
+  res.render('pla', {itr:iteration, w0 : w0, w1:w1, w2:w2});
 });
 
 function linePointsJSON(A, B, C){
